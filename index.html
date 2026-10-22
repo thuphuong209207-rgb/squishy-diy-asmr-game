@@ -1,0 +1,2991 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>2D Squishy DIY & ASMR - Tiệm Squishy Mộng Mơ</title>
+  <style>
+    :root {
+      --bg-cream: #FFF7FA;
+      --pastel-pink: #FFB3D1;
+      --pastel-pink-dark: #FF8AB8;
+      --pastel-purple: #D7BDE2;
+      --pastel-blue: #AED6F1;
+      --pastel-mint: #A3E4D7;
+      --pastel-yellow: #F9E79F;
+      --pastel-peach: #FAD7A0;
+      --text-dark: #5B4B61;
+      --text-muted: #95849E;
+      --card-bg: rgba(255, 255, 255, 0.88);
+      --card-border: rgba(255, 179, 209, 0.4);
+      --shadow-soft: 0 8px 24px rgba(230, 150, 180, 0.18);
+      --font-family: 'Quicksand', 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 20%, #FFF5F9 0%, #F5E8FF 50%, #EBF3FF 100%);
+      font-family: var(--font-family);
+      color: var(--text-dark);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Khung ứng dụng chuẩn phong cách điện thoại / tablet đáng yêu */
+    #app-container {
+      position: relative;
+      width: 100%;
+      max-width: 500px;
+      height: 100%;
+      max-height: 920px;
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 16px 40px rgba(180, 140, 170, 0.22);
+      border-radius: 28px;
+      border: 3px solid rgba(255, 255, 255, 0.9);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    @media (max-width: 500px) {
+      #app-container {
+        border-radius: 0;
+        border: none;
+        max-height: 100vh;
+      }
+    }
+
+    /* HEADER */
+    header {
+      height: 64px;
+      padding: 10px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.7);
+      border-bottom: 2px dashed rgba(255, 179, 209, 0.4);
+      z-index: 20;
+    }
+
+    .app-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #FF6B9E, #B366FF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-stats {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .coin-badge {
+      background: linear-gradient(135deg, #FFF3B0, #FFD166);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: 800;
+      color: #925C00;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 10px rgba(255, 209, 102, 0.4);
+      border: 2px solid #FFF;
+      transition: transform 0.15s ease;
+    }
+
+    .coin-badge.bump {
+      transform: scale(1.18);
+    }
+
+    .header-btn {
+      background: #FFF;
+      border: 2px solid var(--pastel-pink);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+      transition: all 0.2s;
+    }
+    .header-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* MAIN VIEW CONTAINER */
+    #views-wrapper {
+      position: relative;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .view-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .view-screen.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    /* MÀN HÌNH 1: BÓP SQUISHY & ASMR */
+    #view-play {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.7) 0%, rgba(255, 230, 240, 0.3) 100%);
+    }
+
+    #squishy-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: pointer;
+    }
+
+    .play-overlay-ui {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      pointer-events: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      z-index: 5;
+    }
+
+    .squishy-info-card {
+      background: rgba(255, 255, 255, 0.85);
+      padding: 8px 14px;
+      border-radius: 16px;
+      border: 1.5px solid var(--pastel-pink);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(6px);
+      pointer-events: auto;
+    }
+
+    .squishy-tier-badge {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #FFF;
+      background: linear-gradient(135deg, #FF8AB8, #C471ED);
+      padding: 2px 8px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-bottom: 2px;
+    }
+
+    .squishy-name-text {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .nail-active-pill {
+      background: rgba(255, 255, 255, 0.88);
+      padding: 6px 12px;
+      border-radius: 16px;
+      border: 1.5px solid var(--pastel-purple);
+      box-shadow: var(--shadow-soft);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #6C3483;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      pointer-events: auto;
+    }
+
+    .play-hint-toast {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.85);
+      border: 1.5px solid rgba(255, 179, 209, 0.5);
+      box-shadow: var(--shadow-soft);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #885B7A;
+      pointer-events: none;
+      animation: floatPulse 2.5s infinite ease-in-out;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    @keyframes floatPulse {
+      0%, 100% { transform: translate(-50%, 0); opacity: 0.85; }
+      50% { transform: translate(-50%, -6px); opacity: 1; }
+    }
+
+    /* MÀN HÌNH CHUNG CUỘN ĐƯỢC (DIY, NAIL, MINIGAME, SHOP) */
+    .screen-scrollable {
+      padding: 16px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .screen-scrollable::-webkit-scrollbar {
+      width: 5px;
+    }
+    .screen-scrollable::-webkit-scrollbar-thumb {
+      background: var(--pastel-pink);
+      border-radius: 10px;
+    }
+
+    .screen-header-banner {
+      background: linear-gradient(135deg, rgba(255, 214, 232, 0.8), rgba(222, 215, 255, 0.8));
+      padding: 14px 18px;
+      border-radius: 20px;
+      border: 2px solid #FFF;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .screen-header-banner h2 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #6C3483;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .screen-header-banner p {
+      font-size: 0.8rem;
+      color: #885B7A;
+      margin-top: 2px;
+    }
+
+    /* DIY STUDIO */
+    .diy-preview-box {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      border: 2px solid var(--pastel-pink);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+    }
+
+    #diy-canvas-preview {
+      width: 240px;
+      height: 240px;
+      border-radius: 16px;
+      background: radial-gradient(circle, #FFF 0%, #FBF0F5 100%);
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.04);
+      cursor: crosshair;
+    }
+
+    .diy-preview-tools {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .tool-btn {
+      background: #FFF;
+      border: 1.5px solid var(--pastel-pink);
+      border-radius: 12px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .tool-btn:hover, .tool-btn.active {
+      background: var(--pastel-pink);
+      color: #FFF;
+      border-color: var(--pastel-pink-dark);
+    }
+
+    .diy-panel-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      border: 1.5px solid var(--card-border);
+      padding: 14px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .diy-panel-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: #6C3483;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .color-swatches-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .color-swatch-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2.5px solid #FFF;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .color-swatch-circle.selected {
+      transform: scale(1.22);
+      border-color: #6C3483;
+    }
+
+    .sticker-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      max-height: 140px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .sticker-item-btn {
+      aspect-ratio: 1;
+      background: #FFF;
+      border: 1.5px solid #E8D7F1;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .sticker-item-btn:hover, .sticker-item-btn.selected {
+      background: #FFE8F2;
+      border-color: var(--pastel-pink-dark);
+      transform: scale(1.12);
+    }
+    .sticker-item-btn.locked {
+      filter: grayscale(1);
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* TIỆM NAIL */
+    .nail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .nail-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      border: 2px solid var(--card-border);
+      padding: 14px;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .nail-card.equipped {
+      border-color: #FF6B9E;
+      background: linear-gradient(145deg, #FFFFFF, #FFF0F6);
+      box-shadow: 0 8px 24px rgba(255, 107, 158, 0.28);
+    }
+
+    .nail-preview-canvas {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #FFF 0%, #F5ECF7 100%);
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .nail-title {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .nail-buff-text {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #9B59B6;
+      background: #F4ECF7;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .action-btn-main {
+      width: 100%;
+      padding: 8px 14px;
+      border-radius: 16px;
+      border: none;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+    .btn-pink {
+      background: linear-gradient(135deg, #FF8AB8, #FF5C97);
+      color: #FFF;
+      box-shadow: 0 4px 12px rgba(255, 92, 151, 0.35);
+    }
+    .btn-purple {
+      background: linear-gradient(135deg, #BB8FCE, #9B59B6);
+      color: #FFF;
+      box-shadow: 0 4px 12px rgba(155, 89, 182, 0.35);
+    }
+    .btn-equipped {
+      background: #E8F8F5;
+      color: #1ABC9C;
+      border: 1.5px solid #1ABC9C;
+      cursor: default;
+    }
+    .btn-buy {
+      background: linear-gradient(135deg, #F9E79F, #F39C12);
+      color: #7D4E00;
+      box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+    }
+    .action-btn-main:active {
+      transform: scale(0.95);
+    }
+
+    /* MINIGAMES */
+    .minigame-selector-tabs {
+      display: flex;
+      gap: 8px;
+      background: rgba(255,255,255,0.7);
+      padding: 4px;
+      border-radius: 16px;
+      border: 1px solid var(--pastel-pink);
+    }
+
+    .minigame-tab-btn {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: none;
+      background: transparent;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--text-dark);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .minigame-tab-btn.active {
+      background: var(--pastel-pink);
+      color: #FFF;
+      box-shadow: 0 3px 10px rgba(255, 138, 184, 0.3);
+    }
+
+    #minigame-arena-container {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      background: linear-gradient(180deg, #EBF5FB 0%, #FEF9E7 100%);
+      border-radius: 20px;
+      border: 2px solid var(--pastel-blue);
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+    }
+
+    #minigame-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .minigame-hud {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .mg-hud-pill {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 4px 12px;
+      border-radius: 14px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border: 1px solid #FFF;
+      color: #4A235A;
+    }
+
+    .minigame-start-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(4px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      text-align: center;
+      z-index: 10;
+    }
+
+    /* CỬA HÀNG (SHOP) */
+    .shop-section-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #6C3483;
+      margin: 8px 0 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .shop-squishy-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .shop-item-card {
+      background: var(--card-bg);
+      border-radius: 18px;
+      border: 2px solid var(--card-border);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .shop-item-icon-box {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: radial-gradient(circle, #FFF 0%, #F5ECF7 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      border: 1.5px solid #FADBD8;
+      flex-shrink: 0;
+    }
+
+    .shop-item-info {
+      flex: 1;
+    }
+
+    .shop-item-name {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .shop-item-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .shop-item-stats {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #27AE60;
+      margin-top: 3px;
+    }
+
+    /* FOOTER NAVIGATION BAR */
+    nav#bottom-nav {
+      height: 70px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-top: 2px solid rgba(255, 179, 209, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px;
+      z-index: 25;
+    }
+
+    .nav-tab-btn {
+      flex: 1;
+      height: 52px;
+      background: transparent;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      cursor: pointer;
+      border-radius: 14px;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.72rem;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .nav-tab-btn .nav-icon {
+      font-size: 1.35rem;
+      transition: transform 0.2s;
+    }
+
+    .nav-tab-btn.active {
+      color: #D81B60;
+      background: linear-gradient(180deg, rgba(255, 230, 240, 0.9) 0%, rgba(255, 245, 250, 0.4) 100%);
+    }
+
+    .nav-tab-btn.active .nav-icon {
+      transform: translateY(-3px) scale(1.15);
+    }
+
+    /* POPUP & TOAST NOTIFICATION */
+    #toast-msg {
+      position: absolute;
+      top: 75px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(80, 40, 70, 0.92);
+      color: #FFF;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      z-index: 100;
+      white-space: nowrap;
+    }
+    #toast-msg.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* FLOATING COIN & SPARKLE ANIMATIONS */
+    .coin-float-pop {
+      position: absolute;
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #F39C12;
+      text-shadow: 0 2px 4px rgba(255,255,255,0.9);
+      pointer-events: none;
+      animation: floatUpFade 0.9s forwards ease-out;
+      z-index: 50;
+    }
+
+    @keyframes floatUpFade {
+      0% { transform: translate(-50%, 0) scale(0.6); opacity: 0; }
+      20% { transform: translate(-50%, -10px) scale(1.2); opacity: 1; }
+      100% { transform: translate(-50%, -45px) scale(1); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app-container">
+    <!-- HEADER -->
+    <header>
+      <div class="app-title">
+        <span>✨</span> Squishy ASMR DIY
+      </div>
+      <div class="header-stats">
+        <div class="coin-badge" id="header-coin-badge">
+          <span>🪙</span>
+          <span id="player-coins-val">0</span>
+        </div>
+        <button class="header-btn" id="audio-toggle-btn" title="Bật/Tắt Âm thanh ASMR">🔊</button>
+      </div>
+    </header>
+
+    <!-- VIEWS WRAPPER -->
+    <div id="views-wrapper">
+
+      <!-- MÀN HÌNH 1: BÓP SQUISHY & BÀN TAY (CORE GAMEPLAY) -->
+      <section class="view-screen active" id="view-play">
+        <div class="play-overlay-ui">
+          <div class="squishy-info-card">
+            <span class="squishy-tier-badge" id="play-tier-badge">CẤP 1 - THÔ SƠ</span>
+            <div class="squishy-name-text" id="play-squishy-name">Cục Mút Phế Liệu</div>
+          </div>
+          <div class="nail-active-pill" id="play-nail-pill">
+            <span>💅</span>
+            <span id="play-nail-name">Móng Mộc Tự Nhiên</span>
+          </div>
+        </div>
+
+        <canvas id="squishy-canvas"></canvas>
+
+        <div class="play-hint-toast">
+          <span>👆</span> Chạm, nhấn giữ & vuốt để bóp nhăn Squishy • Thả ra để phồng lại từ từ!
+        </div>
+      </section>
+
+      <!-- MÀN HÌNH 2: CHẾ TẠO DIY (DIY STUDIO) -->
+      <section class="view-screen" id="view-diy">
+        <div class="screen-scrollable">
+          <div class="screen-header-banner">
+            <div>
+              <h2>🎨 Studio Sáng Tạo DIY</h2>
+              <p>Tự tay phối màu, dán sticker trang trí phôi Squishy!</p>
+            </div>
+            <button class="action-btn-main btn-pink" id="diy-save-btn" style="width: auto; padding: 6px 14px;">
+              💾 Lưu Ngay
+            </button>
+          </div>
+
+          <!-- Preview & Canvas Dán Sticker -->
+          <div class="diy-preview-box">
+            <canvas id="diy-canvas-preview" width="260" height="260"></canvas>
+            <div class="diy-preview-tools">
+              <button class="tool-btn" id="diy-clear-stickers-btn">🗑️ Xoá hết Sticker</button>
+              <button class="tool-btn" id="diy-reset-color-btn">🔄 Màu Gốc</button>
+            </div>
+          </div>
+
+          <!-- Chọn Bảng Màu -->
+          <div class="diy-panel-card">
+            <div class="diy-panel-title">
+              <span>🌈</span> Phối Màu Cho Squishy
+            </div>
+            <div class="color-swatches-grid" id="diy-color-swatches">
+              <!-- Render JS -->
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+              <span style="font-size:0.8rem; font-weight:700;">Tự chọn màu:</span>
+              <input type="color" id="diy-custom-color-picker" value="#FFB3D1" style="border:none; width:36px; height:32px; border-radius:8px; cursor:pointer;">
+            </div>
+          </div>
+
+          <!-- Chọn Đồ Trang Trí / Sticker -->
+          <div class="diy-panel-card">
+            <div class="diy-panel-title">
+              <span>🎀</span> Kho Sticker Dán Bề Mặt (Chạm vào phôi để dán)
+            </div>
+            <div class="sticker-selector-grid" id="diy-sticker-list">
+              <!-- Render JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MÀN HÌNH 3: TIỆM NAIL (NAIL SALON) -->
+      <section class="view-screen" id="view-nail">
+        <div class="screen-scrollable">
+          <div class="screen-header-banner">
+            <div>
+              <h2>💅 Tiệm Nail Mộng Mơ</h2>
+              <p>Trang bị móng tay sang chảnh để tăng lượng Xu bóp được!</p>
+            </div>
+            <span style="font-size: 1.8rem;">✨</span>
+          </div>
+
+          <div class="nail-grid" id="nail-catalog-grid">
+            <!-- Render JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- MÀN HÌNH 4: MINIGAMES -->
+      <section class="view-screen" id="view-minigame">
+        <div class="screen-scrollable">
+          <div class="screen-header-banner">
+            <div>
+              <h2>🎮 Minigame Săn Xu</h2>
+              <p>Chơi nhanh để rinh ngập tràn Xu về sắm đồ!</p>
+            </div>
+            <span style="font-size: 1.8rem;">🎯</span>
+          </div>
+
+          <div class="minigame-selector-tabs">
+            <button class="minigame-tab-btn active" id="tab-mg-candy" onclick="switchMinigameMode('candy')">
+              🍬 Cơn Mưa Kẹo Ngọt
+            </button>
+            <button class="minigame-tab-btn" id="tab-mg-mochi" onclick="switchMinigameMode('mochi')">
+              🔨 Đập Bọt Mochi
+            </button>
+          </div>
+
+          <div id="minigame-arena-container">
+            <div class="minigame-hud">
+              <div class="mg-hud-pill">⏱️ <span id="mg-timer-val">30s</span></div>
+              <div class="mg-hud-pill">🪙 <span id="mg-score-val">0</span> Xu</div>
+            </div>
+            <canvas id="minigame-canvas"></canvas>
+
+            <!-- Overlay Bắt đầu / Kết thúc -->
+            <div class="minigame-start-overlay" id="mg-overlay">
+              <h3 id="mg-overlay-title" style="font-size: 1.3rem; color:#6C3483; margin-bottom: 6px;">Cơn Mưa Kẹo Ngọt</h3>
+              <p id="mg-overlay-desc" style="font-size: 0.85rem; color:#885B7A; margin-bottom: 16px;">
+                Di chuyển bát kẹo để hứng kẹo & sao rơi. Tránh bom ớt cay nhé!
+              </p>
+              <button class="action-btn-main btn-pink" id="mg-start-btn" style="max-width: 200px; padding: 10px 20px;">
+                🚀 Bắt Đầu Chơi
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MÀN HÌNH 5: CỬA HÀNG (SHOP) -->
+      <section class="view-screen" id="view-shop">
+        <div class="screen-scrollable">
+          <div class="screen-header-banner">
+            <div>
+              <h2>🛍️ Cửa Hàng Squishy & Vật Phẩm</h2>
+              <p>Mở khóa các mẫu Squishy xịn xò và Sticker độc quyền!</p>
+            </div>
+            <span style="font-size: 1.8rem;">🎁</span>
+          </div>
+
+          <div class="shop-section-title">
+            <span>🧸</span> Bộ Sưu Tập Phôi Squishy (Từ Xấu Đến Siêu Phẩm)
+          </div>
+          <div class="shop-squishy-list" id="shop-squishy-container">
+            <!-- Render JS -->
+          </div>
+
+          <div class="shop-section-title" style="margin-top: 14px;">
+            <span>🎀</span> Gói Sticker Độc Quyền
+          </div>
+          <div class="shop-squishy-list" id="shop-sticker-container">
+            <!-- Render JS -->
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- TOAST THÔNG BÁO -->
+    <div id="toast-msg">Thông báo nè!</div>
+
+    <!-- THANH ĐIỀU HƯỚNG DƯỚI (BOTTOM NAVIGATION) -->
+    <nav id="bottom-nav">
+      <button class="nav-tab-btn active" data-target="view-play">
+        <span class="nav-icon">🧸</span>
+        <span>Chơi Squishy</span>
+      </button>
+      <button class="nav-tab-btn" data-target="view-diy">
+        <span class="nav-icon">🎨</span>
+        <span>Chế Tạo DIY</span>
+      </button>
+      <button class="nav-tab-btn" data-target="view-nail">
+        <span class="nav-icon">💅</span>
+        <span>Tiệm Nail</span>
+      </button>
+      <button class="nav-tab-btn" data-target="view-minigame">
+        <span class="nav-icon">🎮</span>
+        <span>Minigame</span>
+      </button>
+      <button class="nav-tab-btn" data-target="view-shop">
+        <span class="nav-icon">🛍️</span>
+        <span>Cửa Hàng</span>
+      </button>
+    </nav>
+  </div>
+
+  <script>
+    /* =====================================================================
+       HỆ THỐNG DỮ LIỆU & QUẢN LÝ TIẾN TRÌNH (LOCALSTORAGE & GAME STATE)
+       ===================================================================== */
+    const SQUISHY_CATALOG = [
+      {
+        id: 'squishy_tier_1',
+        name: 'Cục Mút Phế Liệu',
+        tierName: 'Cấp 1 - Thô Sơ',
+        tierNum: 1,
+        price: 0,
+        unlocked: true,
+        baseColor: '#A6A6A6',
+        secondaryColor: '#808080',
+        shape: 'lumpy_sponge',
+        soundType: 'dry_foam',
+        coinReward: 1,
+        reboundSpeed: 0.08,
+        desc: 'Méo mó, màu xám xỉn, kêu tiếng xẹp khô ráp.'
+      },
+      {
+        id: 'squishy_tier_2',
+        name: 'Cục Tẩy Kẹo Dẻo',
+        tierName: 'Cấp 2 - Cơ Bản',
+        tierNum: 2,
+        price: 150,
+        unlocked: false,
+        baseColor: '#85C1E9',
+        secondaryColor: '#5DADE2',
+        shape: 'rounded_rect',
+        soundType: 'rubber_pop',
+        coinReward: 3,
+        reboundSpeed: 0.06,
+        desc: 'Đỡ méo hơn, đàn hồi nhịp nhàng, kêu tiếng bẹp bẹp dễ thương.'
+      },
+      {
+        id: 'squishy_tier_3',
+        name: 'Bánh Mì Bơ Tươi',
+        tierName: 'Cấp 3 - Dễ Thương',
+        tierNum: 3,
+        price: 450,
+        unlocked: false,
+        baseColor: '#FAD7A0',
+        secondaryColor: '#E59866',
+        shape: 'bread_loaf',
+        soundType: 'bread_squish',
+        coinReward: 7,
+        reboundSpeed: 0.045,
+        desc: 'Bánh mì nướng thơm lừng viền nâu, bóp xốp êm tay.'
+      },
+      {
+        id: 'squishy_tier_4',
+        name: 'Mèo Mochi Sữa Dâu',
+        tierName: 'Cấp 4 - Đáng Yêu',
+        tierNum: 4,
+        price: 1000,
+        unlocked: false,
+        baseColor: '#FFCCD5',
+        secondaryColor: '#FF8FAB',
+        shape: 'cat_mochi',
+        soundType: 'mochi_soft',
+        coinReward: 14,
+        reboundSpeed: 0.035,
+        desc: 'Tròn vo mềm mịn như kẹo dẻo mochi, tiếng kêu mướt rượt.'
+      },
+      {
+        id: 'squishy_tier_5',
+        name: 'Bánh Kem Thỏ Galaxy',
+        tierName: 'Cấp 5 - Quý Hiếm',
+        tierNum: 5,
+        price: 2200,
+        unlocked: false,
+        baseColor: '#D7BDE2',
+        secondaryColor: '#AF7AC5',
+        shape: 'bunny_cake',
+        soundType: 'creamy_sparkle',
+        coinReward: 25,
+        reboundSpeed: 0.025,
+        desc: 'Bánh kem 3 tầng tím pastel mộng mơ có hiệu ứng sao rơi lấp lánh.'
+      },
+      {
+        id: 'squishy_tier_6',
+        name: 'Kỳ Lân Cầu Vồng Cực Phẩm',
+        tierName: 'Cấp 6 - Cực Phẩm',
+        tierNum: 6,
+        price: 4500,
+        unlocked: false,
+        baseColor: '#FFF',
+        secondaryColor: '#FF69B4',
+        shape: 'unicorn_star',
+        soundType: 'celestial_chime',
+        coinReward: 50,
+        reboundSpeed: 0.02,
+        desc: 'Hào quang 7 sắc cầu vồng, âm thanh chuông ASMR ngân vang ma thuật.'
+      }
+    ];
+
+    const NAIL_CATALOG = [
+      {
+        id: 'nail_1',
+        name: 'Móng Mộc Tự Nhiên',
+        price: 0,
+        unlocked: true,
+        type: 'natural',
+        nailColor: '#F5CBA7',
+        tipColor: '#FFFFFF',
+        sparkle: false,
+        gems: false,
+        bonusMultiplier: 1.0,
+        desc: 'Móng tay mộc ngắn, tiếng gõ mộc nhẹ nhàng.'
+      },
+      {
+        id: 'nail_2',
+        name: 'Móng Gel Thạch Đào',
+        price: 200,
+        unlocked: false,
+        type: 'jelly_pink',
+        nailColor: '#FF99C8',
+        tipColor: '#FCF6BD',
+        sparkle: false,
+        gems: false,
+        bonusMultiplier: 1.25,
+        desc: 'Màu hồng thạch căng bóng, tăng +25% Xu khi bóp.'
+      },
+      {
+        id: 'nail_3',
+        name: 'Móng Ombre Tím Pastel',
+        price: 600,
+        unlocked: false,
+        type: 'ombre_lavender',
+        nailColor: '#CDB4DB',
+        tipColor: '#FFC8DD',
+        sparkle: true,
+        gems: false,
+        bonusMultiplier: 1.6,
+        desc: 'Ombre tím hồng kiêu sa lấp lánh nhẹ, tăng +60% Xu.'
+      },
+      {
+        id: 'nail_4',
+        name: 'Móng Đính Pha Lê Lấp Lánh',
+        price: 1500,
+        unlocked: false,
+        type: 'crystal_diamond',
+        nailColor: '#A2D2FF',
+        tipColor: '#BDE0FE',
+        sparkle: true,
+        gems: true,
+        bonusMultiplier: 2.2,
+        desc: 'Móng dáng nhọn đính đá kim cương sang chảnh, tăng +120% Xu.'
+      },
+      {
+        id: 'nail_5',
+        name: 'Móng Nữ Hoàng Hologram',
+        price: 3500,
+        unlocked: false,
+        type: 'holo_queen',
+        nailColor: '#FFC6FF',
+        tipColor: '#9BF6FF',
+        sparkle: true,
+        gems: true,
+        bonusMultiplier: 3.5,
+        desc: 'Hologram cực quang phát sáng ngút ngàn, tăng +250% Xu.'
+      }
+    ];
+
+    const STICKER_PACKS = [
+      {
+        id: 'pack_basic',
+        name: 'Gói Cơ Bản (Miễn Phí)',
+        price: 0,
+        unlocked: true,
+        stickers: ['❤️', '⭐', '🎀', '🌸', '✨', '🍓', '🐾', '🍒']
+      },
+      {
+        id: 'pack_sweets',
+        name: 'Gói Tiệm Bánh Ngọt',
+        price: 300,
+        unlocked: false,
+        stickers: ['🧁', '🍩', '🍡', '🍭', '🥞', '🧇', '🍰', '🍫']
+      },
+      {
+        id: 'pack_fantasy',
+        name: 'Gói Phù Thủy Cổ Tích',
+        price: 800,
+        unlocked: false,
+        stickers: ['🦄', '👑', '💎', '🌙', '🪄', '🪐', '🪽', '🧸']
+      }
+    ];
+
+    const PASTEL_PALETTE = [
+      '#FFB3D1', '#FF99C8', '#FF85A1', '#F72585',
+      '#D7BDE2', '#CDB4DB', '#AF7AC5', '#8E44AD',
+      '#A3E4D7', '#76D7C4', '#48C9B0', '#1ABC9C',
+      '#AED6F1', '#85C1E9', '#5DADE2', '#3498DB',
+      '#F9E79F', '#F7DC6F', '#F4D03F', '#F39C12',
+      '#FAD7A0', '#F8C471', '#EDBB99', '#E59866',
+      '#FFFFFF', '#EAECEE', '#ABB2B9', '#566573'
+    ];
+
+    // LocalStorage State Manager
+    const STORAGE_KEY = 'squishy_asmr_save_v1';
+
+    let gameState = {
+      coins: 100,
+      activeSquishyId: 'squishy_tier_1',
+      activeNailId: 'nail_1',
+      unlockedSquishies: ['squishy_tier_1'],
+      unlockedNails: ['nail_1'],
+      unlockedPacks: ['pack_basic'],
+      soundEnabled: true,
+      // DIY Customizations theo Squishy Id
+      diyData: {
+        'squishy_tier_1': {
+          customColor: '#A6A6A6',
+          stickers: [] // { emoji, relX, relY, scale, rot }
+        }
+      }
+    };
+
+    function loadGame() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          gameState = Object.assign(gameState, parsed);
+        }
+      } catch (e) {
+        console.warn('Không thể đọc dữ liệu cũ:', e);
+      }
+    }
+
+    function saveGame() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+      } catch (e) {
+        console.warn('Không thể lưu LocalStorage:', e);
+      }
+    }
+
+    /* =====================================================================
+       HỆ THỐNG ÂM THANH ASMR THUẦN CHẤT (WEB AUDIO API SYNTHESIZER)
+       ===================================================================== */
+    class ASMRSoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.masterGain = null;
+        this.isMuted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioCtx();
+          this.masterGain = this.ctx.createGain();
+          this.masterGain.gain.setValueAtTime(0.7, this.ctx.currentTime);
+          this.masterGain.connect(this.ctx.destination);
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      setMute(mute) {
+        this.isMuted = mute;
+        if (this.masterGain && this.ctx) {
+          this.masterGain.gain.setValueAtTime(mute ? 0 : 0.7, this.ctx.currentTime);
+        }
+      }
+
+      // Phát âm thanh ASMR bóp Squishy dựa theo cấp độ phôi
+      playSquishASMR(soundType, intensity = 1.0) {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+
+        switch (soundType) {
+          case 'dry_foam': // Tiếng xẹp xẹp xốp khô (Tier 1)
+            this.synthDryFoam(now, intensity);
+            break;
+
+          case 'rubber_pop': // Tiếng bóp cao su đực (Tier 2)
+            this.synthRubber(now, intensity);
+            break;
+
+          case 'bread_squish': // Tiếng nén bánh mì mềm xốp (Tier 3)
+            this.synthBread(now, intensity);
+            break;
+
+          case 'mochi_soft': // Tiếng Mochi trơn ướt dẻo quẹo (Tier 4)
+            this.synthMochi(now, intensity);
+            break;
+
+          case 'creamy_sparkle': // Tiếng kem mịn + chuông lấp lánh (Tier 5)
+            this.synthCreamySparkle(now, intensity);
+            break;
+
+          case 'celestial_chime': // Chuông ma thuật cực phẩm (Tier 6)
+            this.synthCelestial(now, intensity);
+            break;
+
+          default:
+            this.synthMochi(now, intensity);
+        }
+      }
+
+      // Tiếng xốp khô (Pink/White noise qua bandpass filter)
+      synthDryFoam(now, intensity) {
+        const bufferSize = this.ctx.sampleRate * 0.12;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * 0.5;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(800 + Math.random() * 300, now);
+        filter.Q.setValueAtTime(3.0, now);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.25 * intensity, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        noise.start(now);
+      }
+
+      // Tiếng bóp cao su
+      synthRubber(now, intensity) {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(65, now + 0.14);
+
+        gain.gain.setValueAtTime(0.3 * intensity, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.15);
+      }
+
+      // Tiếng bánh mì phồng nén
+      synthBread(now, intensity) {
+        // Nén tần số thấp + tiếng gió xì
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(95, now);
+        osc.frequency.exponentialRampToValueAtTime(45, now + 0.22);
+
+        gain.gain.setValueAtTime(0.35 * intensity, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.23);
+
+        // Khí xì nhẹ
+        this.synthAirPuff(now, 0.15 * intensity, 400);
+      }
+
+      // Tiếng mochi sữa dẻo quẹt mướt rượt
+      synthMochi(now, intensity) {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(210, now);
+        osc.frequency.exponentialRampToValueAtTime(80, now + 0.08);
+        osc.frequency.exponentialRampToValueAtTime(55, now + 0.2);
+
+        gain.gain.setValueAtTime(0.4 * intensity, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(now);
+        osc.stop(now + 0.21);
+
+        this.synthAirPuff(now + 0.02, 0.2 * intensity, 650);
+      }
+
+      // Tiếng kem béo lấp lánh
+      synthCreamySparkle(now, intensity) {
+        this.synthMochi(now, intensity);
+
+        // Chuông sao lấp lánh (Sparkle harmonics)
+        const notes = [1200, 1500, 1800];
+        notes.forEach((freq, idx) => {
+          const sOsc = this.ctx.createOscillator();
+          const sGain = this.ctx.createGain();
+
+          sOsc.type = 'sine';
+          sOsc.frequency.setValueAtTime(freq, now + idx * 0.03);
+
+          sGain.gain.setValueAtTime(0.12 * intensity, now + idx * 0.03);
+          sGain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.03 + 0.25);
+
+          sOsc.connect(sGain);
+          sGain.connect(this.masterGain);
+
+          sOsc.start(now + idx * 0.03);
+          sOsc.stop(now + idx * 0.03 + 0.26);
+        });
+      }
+
+      // Chuông ma thuật thiên giới
+      synthCelestial(now, intensity) {
+        this.synthMochi(now, intensity * 0.8);
+
+        const chord = [880, 1100, 1320, 1760];
+        chord.forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + i * 0.025);
+
+          gain.gain.setValueAtTime(0.15 * intensity, now + i * 0.025);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.025 + 0.45);
+
+          osc.connect(gain);
+          gain.connect(this.masterGain);
+
+          osc.start(now + i * 0.025);
+          osc.stop(now + i * 0.025 + 0.46);
+        });
+      }
+
+      synthAirPuff(now, vol, freq) {
+        const bufferSize = this.ctx.sampleRate * 0.15;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(freq, now);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(vol, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        noise.start(now);
+      }
+
+      // Tiếng gõ móng tay Nail Tapping ASMR (cộp cộp giòn tan)
+      playNailTap(nailType) {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        let baseFreq = 2200;
+        let decay = 0.035;
+
+        if (nailType === 'crystal_diamond' || nailType === 'holo_queen') {
+          baseFreq = 3200;
+          decay = 0.05;
+        } else if (nailType === 'natural') {
+          baseFreq = 1600;
+          decay = 0.025;
+        }
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + decay);
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + decay);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + decay + 0.01);
+      }
+
+      // Tiếng ăn tiền xu reo vang
+      playCoinEarn() {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(987.77, now); // B5
+        osc.frequency.setValueAtTime(1318.51, now + 0.07); // E6
+
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.23);
+      }
+
+      // Tiếng pop minigame
+      playPopSound() {
+        if (this.isMuted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(350 + Math.random() * 200, now);
+        osc.frequency.exponentialRampToValueAtTime(750 + Math.random() * 200, now + 0.08);
+
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        osc.start(now);
+        osc.stop(now + 0.09);
+      }
+    }
+
+    const soundEngine = new ASMRSoundEngine();
+
+    /* =====================================================================
+       CƠ CHẾ VẬT LÝ BIẾN DẠNG SOFT-BODY ĐÀN HỒI (SQUISHY 2D MESH SIMULATION)
+       ===================================================================== */
+    class SoftSquishyMesh {
+      constructor(nodeCount = 28) {
+        this.nodeCount = nodeCount;
+        this.nodes = [];
+        this.centerX = 0;
+        this.centerY = 0;
+        this.baseRadius = 110;
+        this.reboundRate = 0.04; // Memory foam slow recovery rate
+        this.damping = 0.85;
+
+        // Bàn tay & ngón tay tương tác
+        this.isTouching = false;
+        this.fingerX = 0;
+        this.fingerY = 0;
+        this.fingerTargetX = 0;
+        this.fingerTargetY = 0;
+        this.pressDepth = 0; // 0 to 1
+
+        // Hạt lấp lánh & hiệu ứng
+        this.particles = [];
+        this.ripples = [];
+
+        this.initNodes();
+      }
+
+      initNodes() {
+        this.nodes = [];
+        for (let i = 0; i < this.nodeCount; i++) {
+          const angle = (i / this.nodeCount) * Math.PI * 2;
+          this.nodes.push({
+            angle: angle,
+            restRadius: this.baseRadius,
+            currentRadius: this.baseRadius,
+            targetRadius: this.baseRadius,
+            velocity: 0,
+            x: 0,
+            y: 0
+          });
+        }
+      }
+
+      resize(width, height) {
+        this.centerX = width / 2;
+        this.centerY = height / 2;
+        this.baseRadius = Math.min(width, height) * 0.28;
+        for (let node of this.nodes) {
+          node.restRadius = this.baseRadius;
+        }
+      }
+
+      // Xử lý nén squishy khi ngón tay đè vào
+      applyTouchIndent(touchX, touchY, isDown) {
+        this.isTouching = isDown;
+        this.fingerTargetX = touchX;
+        this.fingerTargetY = touchY;
+
+        if (isDown) {
+          if (this.pressDepth === 0 || (this.fingerX === 0 && this.fingerY === 0)) {
+            this.fingerX = touchX;
+            this.fingerY = touchY;
+          }
+          // Tính góc và khoảng cách từ tâm đến điểm ấn
+          const dx = touchX - this.centerX;
+          const dy = touchY - this.centerY;
+          const distFromCenter = Math.hypot(dx, dy);
+          const touchAngle = Math.atan2(dy, dx);
+
+          // Độ sâu nén
+          this.pressDepth = Math.min(1.0, this.pressDepth + 0.15);
+
+          // Tạo biến dạng đàn hồi: các điểm gần vết nhấn sẽ thụt sâu vào, các điểm đối xứng hơi phồng ra (bảo toàn thể tích)
+          for (let node of this.nodes) {
+            let angleDiff = Math.abs(node.angle - touchAngle);
+            if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
+
+            // Vùng ảnh hưởng trực tiếp (lõm sâu)
+            if (angleDiff < Math.PI * 0.45) {
+              const falloff = Math.cos((angleDiff / (Math.PI * 0.45)) * (Math.PI / 2));
+              const indent = this.baseRadius * 0.48 * falloff;
+              node.targetRadius = Math.max(this.baseRadius * 0.42, this.baseRadius - indent);
+            } else {
+              // Phồng ra nhẹ ở hai bên hông
+              const bulge = this.baseRadius * 0.12 * Math.sin(angleDiff);
+              node.targetRadius = this.baseRadius + bulge;
+            }
+          }
+        }
+      }
+
+      update(squishyData) {
+        const rebound = squishyData.reboundSpeed || 0.04;
+
+        // Di chuyển ngón tay mượt mà theo trỏ chuột
+        this.fingerX += (this.fingerTargetX - this.fingerX) * 0.35;
+        this.fingerY += (this.fingerTargetY - this.fingerY) * 0.35;
+
+        if (!this.isTouching) {
+          this.pressDepth = Math.max(0, this.pressDepth - 0.05);
+          // Từ từ phồng trở lại (Slow-rising memory foam effect)
+          for (let node of this.nodes) {
+            node.targetRadius = this.baseRadius;
+          }
+        }
+
+        // Cập nhật vị trí các nút theo lò xo hồi phục
+        for (let i = 0; i < this.nodeCount; i++) {
+          const node = this.nodes[i];
+          const diff = node.targetRadius - node.currentRadius;
+
+          // Lực đàn hồi + giảm chấn
+          node.velocity += diff * rebound;
+          node.velocity *= this.damping;
+          node.currentRadius += node.velocity;
+
+          // Chống rung lắc quá mức
+          if (Math.abs(diff) < 0.2 && Math.abs(node.velocity) < 0.2) {
+            node.currentRadius = node.targetRadius;
+            node.velocity = 0;
+          }
+
+          // Tọa độ thực trên canvas
+          node.x = this.centerX + Math.cos(node.angle) * node.currentRadius;
+          node.y = this.centerY + Math.sin(node.angle) * node.currentRadius;
+        }
+
+        // Cập nhật hạt lấp lánh & vòng sóng rung
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.08; // rơi nhẹ
+          p.alpha -= 0.022;
+          p.scale = Math.max(0, p.scale - 0.015);
+          if (p.alpha <= 0) {
+            this.particles.splice(i, 1);
+          }
+        }
+
+        for (let i = this.ripples.length - 1; i >= 0; i--) {
+          const r = this.ripples[i];
+          r.radius += 2.5;
+          r.alpha -= 0.035;
+          if (r.alpha <= 0) {
+            this.ripples.splice(i, 1);
+          }
+        }
+      }
+
+      spawnSquishParticles(x, y, count = 6, tier = 1) {
+        const colors = tier >= 5
+          ? ['#FFB7D5', '#B5EAD7', '#C7CEEA', '#FFF3B0', '#FFF']
+          : ['#FFB7D5', '#FFF', '#FFDAC1'];
+
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 1.5 + Math.random() * 3.5;
+          this.particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 1.2,
+            alpha: 1.0,
+            scale: 0.8 + Math.random() * 0.8,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            char: Math.random() > 0.4 ? '✨' : '💖'
+          });
+        }
+
+        this.ripples.push({
+          x: x,
+          y: y,
+          radius: 15,
+          alpha: 0.8
+        });
+      }
+
+      // Vẽ toàn bộ Squishy: thân mềm, khuôn mặt, họa tiết, sticker & bàn tay
+      render(ctx, squishyData, customDIY, nailData) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+        // 1. Vẽ bóng đổ của Squishy ở dưới
+        this.renderShadow(ctx);
+
+        // 2. Vẽ thân Squishy bằng đường cong khép kín Bezier mềm mại
+        ctx.save();
+        ctx.beginPath();
+        const firstNode = this.nodes[0];
+        const lastNode = this.nodes[this.nodeCount - 1];
+        let midX = (lastNode.x + firstNode.x) / 2;
+        let midY = (lastNode.y + firstNode.y) / 2;
+        ctx.moveTo(midX, midY);
+
+        for (let i = 0; i < this.nodeCount; i++) {
+          const curr = this.nodes[i];
+          const next = this.nodes[(i + 1) % this.nodeCount];
+          const nextMidX = (curr.x + next.x) / 2;
+          const nextMidY = (curr.y + next.y) / 2;
+          ctx.quadraticCurveTo(curr.x, curr.y, nextMidX, nextMidY);
+        }
+        ctx.closePath();
+
+        // Màu thân Squishy (ưu tiên màu DIY tùy biến)
+        const primaryColor = (customDIY && customDIY.customColor) ? customDIY.customColor : squishyData.baseColor;
+        const grad = ctx.createRadialGradient(
+          this.centerX - this.baseRadius * 0.25,
+          this.centerY - this.baseRadius * 0.3,
+          this.baseRadius * 0.1,
+          this.centerX,
+          this.centerY,
+          this.baseRadius * 1.15
+        );
+        grad.addColorStop(0, '#FFFFFF');
+        grad.addColorStop(0.3, primaryColor);
+        grad.addColorStop(1, squishyData.secondaryColor);
+
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Viền mềm ấm áp
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = squishyData.secondaryColor;
+        ctx.stroke();
+
+        // Clip nội dung bên trong bề mặt squishy để dán sticker & vẽ khuôn mặt
+        ctx.clip();
+
+        // Vẽ kết cấu riêng từng loại Squishy
+        this.renderSpecificFeatures(ctx, squishyData);
+
+        // Vẽ các Sticker DIY đã dán lên bề mặt
+        if (customDIY && customDIY.stickers) {
+          for (const stk of customDIY.stickers) {
+            // Tính toán biến dạng tọa độ sticker theo tâm squishy
+            const posX = this.centerX + stk.relX * (this.baseRadius / 110);
+            const posY = this.centerY + stk.relY * (this.baseRadius / 110);
+
+            ctx.save();
+            ctx.translate(posX, posY);
+            ctx.rotate(stk.rot || 0);
+            ctx.font = `${Math.round(28 * (stk.scale || 1))}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(stk.emoji, 0, 0);
+            ctx.restore();
+          }
+        }
+
+        // Lớp Highlight ánh sáng bóng bẩy trên đỉnh
+        ctx.beginPath();
+        ctx.ellipse(
+          this.centerX - this.baseRadius * 0.35,
+          this.centerY - this.baseRadius * 0.45,
+          this.baseRadius * 0.35,
+          this.baseRadius * 0.16,
+          -Math.PI / 6,
+          0,
+          Math.PI * 2
+        );
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.fill();
+
+        ctx.restore(); // Hết clip
+
+        // 3. Vẽ sóng xung kích khi bóp (Ripples)
+        this.renderRipples(ctx);
+
+        // 4. Vẽ hạt lấp lánh (Particles)
+        this.renderParticles(ctx);
+
+        // 5. VẼ BÀN TAY & BỘ NAIL CỦA NGƯỜI CHƠI
+        if (this.isTouching || this.pressDepth > 0.05) {
+          this.renderHandAndNail(ctx, nailData);
+        }
+      }
+
+      renderShadow(ctx) {
+        ctx.save();
+        const shadowScale = 1.0 - this.pressDepth * 0.1;
+        ctx.beginPath();
+        ctx.ellipse(
+          this.centerX,
+          this.centerY + this.baseRadius * 0.98,
+          this.baseRadius * 0.85 * shadowScale,
+          this.baseRadius * 0.22 * shadowScale,
+          0,
+          0,
+          Math.PI * 2
+        );
+        ctx.fillStyle = 'rgba(180, 140, 165, 0.22)';
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Tạo hình khuôn mặt & đặc trưng cho từng Squishy
+      renderSpecificFeatures(ctx, squishy) {
+        const cx = this.centerX;
+        const cy = this.centerY;
+        const r = this.baseRadius;
+
+        switch (squishy.shape) {
+          case 'lumpy_sponge': // Tier 1: Miếng xốp rỗ phế liệu
+            ctx.fillStyle = 'rgba(100, 100, 100, 0.2)';
+            for (let i = 0; i < 9; i++) {
+              const ox = ((i % 3) - 1) * r * 0.45;
+              const oy = (Math.floor(i / 3) - 1) * r * 0.45;
+              ctx.beginPath();
+              ctx.arc(cx + ox, cy + oy, 7 + (i % 4) * 3, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            // Mắt méo xệch buồn cười
+            ctx.fillStyle = '#444';
+            ctx.fillRect(cx - 30, cy - 10, 8, 8);
+            ctx.fillRect(cx + 25, cy - 8, 8, 8);
+            ctx.beginPath();
+            ctx.moveTo(cx - 20, cy + 25);
+            ctx.lineTo(cx + 15, cy + 20);
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            break;
+
+          case 'rounded_rect': // Tier 2: Cục tẩy
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.font = 'bold 18px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('ERASER 4B', cx, cy - 20);
+            // Mắt cười ^_^
+            ctx.fillStyle = '#2C3E50';
+            ctx.font = 'bold 24px sans-serif';
+            ctx.fillText('• ‿ •', cx, cy + 25);
+            break;
+
+          case 'bread_loaf': // Tier 3: Bánh mì
+            // Hai tai bánh mì & má hồng
+            ctx.fillStyle = '#FF9999';
+            ctx.beginPath();
+            ctx.arc(cx - 45, cy + 18, 12, 0, Math.PI * 2);
+            ctx.arc(cx + 45, cy + 18, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Mắt nhắm tít
+            ctx.strokeStyle = '#6E2C00';
+            ctx.lineWidth = 3.5;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.arc(cx - 30, cy + 5, 8, Math.PI, Math.PI * 2);
+            ctx.arc(cx + 30, cy + 5, 8, Math.PI, Math.PI * 2);
+            ctx.stroke();
+            // Miệng chữ w
+            ctx.font = 'bold 20px sans-serif';
+            ctx.fillStyle = '#6E2C00';
+            ctx.fillText('ω', cx, cy + 22);
+            break;
+
+          case 'cat_mochi': // Tier 4: Mèo mochi sữa dâu
+            // Tai mèo hồng
+            ctx.fillStyle = '#FF8FAB';
+            ctx.beginPath();
+            ctx.moveTo(cx - r * 0.6, cy - r * 0.4);
+            ctx.lineTo(cx - r * 0.35, cy - r * 0.85);
+            ctx.lineTo(cx - r * 0.1, cy - r * 0.55);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(cx + r * 0.1, cy - r * 0.55);
+            ctx.lineTo(cx + r * 0.35, cy - r * 0.85);
+            ctx.lineTo(cx + r * 0.6, cy - r * 0.4);
+            ctx.fill();
+
+            // Má hồng to tròn
+            ctx.fillStyle = '#FFB3C6';
+            ctx.beginPath();
+            ctx.arc(cx - 50, cy + 22, 16, 0, Math.PI * 2);
+            ctx.arc(cx + 50, cy + 22, 16, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Mắt long lanh
+            ctx.fillStyle = '#4A235A';
+            ctx.beginPath();
+            ctx.arc(cx - 35, cy + 5, 9, 0, Math.PI * 2);
+            ctx.arc(cx + 35, cy + 5, 9, 0, Math.PI * 2);
+            ctx.fill();
+            // Đốm sáng mắt
+            ctx.fillStyle = '#FFF';
+            ctx.beginPath();
+            ctx.arc(cx - 37, cy + 2, 3.5, 0, Math.PI * 2);
+            ctx.arc(cx + 33, cy + 2, 3.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Mũi tam giác & râu mèo
+            ctx.fillStyle = '#FF4D6D';
+            ctx.beginPath();
+            ctx.moveTo(cx - 5, cy + 14);
+            ctx.lineTo(cx + 5, cy + 14);
+            ctx.lineTo(cx, cy + 19);
+            ctx.fill();
+            break;
+
+          case 'bunny_cake': // Tier 5: Thỏ bánh kem
+            // Vệt kem phủ socola ngọt ngào
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            ctx.beginPath();
+            ctx.ellipse(cx, cy - r * 0.25, r * 0.7, r * 0.25, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Mắt anime chớp chớp
+            ctx.font = '32px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('✨ ◕ ‿ ◕ ✨', cx, cy + 15);
+            break;
+
+          case 'unicorn_star': // Tier 6: Kỳ lân thần thoại
+            // Sừng vàng xoắn
+            ctx.fillStyle = '#F4D03F';
+            ctx.beginPath();
+            ctx.moveTo(cx - 15, cy - r * 0.55);
+            ctx.lineTo(cx, cy - r * 1.05);
+            ctx.lineTo(cx + 15, cy - r * 0.55);
+            ctx.closePath();
+            ctx.fill();
+
+            // Vòng nguyệt quế hoa
+            ctx.font = '22px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('🌸 ⭐ 🌸', cx, cy - r * 0.4);
+
+            // Mắt thiên thần khép hờ
+            ctx.fillStyle = '#6C3483';
+            ctx.font = 'bold 28px sans-serif';
+            ctx.fillText('˘ ◡ ˘', cx, cy + 12);
+            break;
+        }
+      }
+
+      renderRipples(ctx) {
+        for (const rip of this.ripples) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255, 180, 210, ${rip.alpha})`;
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      renderParticles(ctx) {
+        for (const p of this.particles) {
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.font = `${Math.round(18 * p.scale)}px sans-serif`;
+          ctx.fillText(p.char, p.x, p.y);
+          ctx.restore();
+        }
+      }
+
+      // VẼ BÀN TAY & MÓNG TAY (NAIL OVERLAY) KHI CHẠM
+      renderHandAndNail(ctx, nailData) {
+        const tx = this.fingerX;
+        const ty = this.fingerY;
+
+        ctx.save();
+        // Góc nghiêng tự nhiên của ngón tay
+        ctx.translate(tx, ty);
+        ctx.rotate(-Math.PI / 12);
+
+        // Vết lõm tròn xung quanh chỗ ngón tay ấn
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 28, 22, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.fill();
+
+        // 1. Thân ngón tay trỏ (Skin tone hồng hào đáng yêu)
+        ctx.beginPath();
+        ctx.moveTo(-18, 0);
+        ctx.lineTo(-24, 180);
+        ctx.lineTo(24, 180);
+        ctx.lineTo(18, 0);
+        ctx.closePath();
+
+        const skinGrad = ctx.createLinearGradient(0, 0, 0, 180);
+        skinGrad.addColorStop(0, '#FFE3E0');
+        skinGrad.addColorStop(0.7, '#FFD0CC');
+        skinGrad.addColorStop(1, '#F7B7B2');
+        ctx.fillStyle = skinGrad;
+        ctx.fill();
+
+        // Khớp ngón tay phấn hồng (Blush knuckle)
+        ctx.beginPath();
+        ctx.ellipse(0, 65, 14, 6, 0, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 150, 170, 0.28)';
+        ctx.fill();
+
+        // Đầu ngón tay bo tròn
+        ctx.beginPath();
+        ctx.arc(0, 2, 18, Math.PI, 0);
+        ctx.fillStyle = '#FFE3E0';
+        ctx.fill();
+
+        // 2. VẼ BỘ NAIL ĐANG TRANG BỊ
+        this.renderEquippedNail(ctx, nailData);
+
+        ctx.restore();
+      }
+
+      renderEquippedNail(ctx, nail) {
+        ctx.save();
+        // Vị trí móng ở đỉnh đầu ngón tay
+        ctx.translate(0, -6);
+
+        // Hình dáng móng tay: oval/almond/stiletto
+        ctx.beginPath();
+        ctx.moveTo(-14, 18);
+        ctx.lineTo(-14, 2);
+        if (nail.type === 'crystal_diamond' || nail.type === 'holo_queen') {
+          // Dáng móng nhọn kiêu kỳ (Stiletto nail)
+          ctx.quadraticCurveTo(-12, -26, 0, -32);
+          ctx.quadraticCurveTo(12, -26, 14, 2);
+        } else {
+          // Dáng móng oval thanh lịch
+          ctx.quadraticCurveTo(-14, -20, 0, -22);
+          ctx.quadraticCurveTo(14, -20, 14, 2);
+        }
+        ctx.lineTo(14, 18);
+        ctx.closePath();
+
+        // Màu sơn gel của móng
+        const nailGrad = ctx.createLinearGradient(0, -28, 0, 18);
+        nailGrad.addColorStop(0, nail.tipColor);
+        nailGrad.addColorStop(1, nail.nailColor);
+        ctx.fillStyle = nailGrad;
+        ctx.fill();
+
+        // Viền bóng móng
+        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.stroke();
+
+        // Vệt sáng bóng loáng (High-gloss Gel shine)
+        ctx.beginPath();
+        ctx.ellipse(-5, -6, 2.5, 10, -Math.PI / 18, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+        ctx.fill();
+
+        // Đính đá pha lê / Kim cương lấp lánh (Nail art gems)
+        if (nail.gems) {
+          ctx.font = '13px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('💎', 0, -2);
+        }
+
+        // Hiệu ứng Hologram sao lấp lánh
+        if (nail.sparkle) {
+          ctx.font = '10px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('✨', 6, -14);
+        }
+
+        ctx.restore();
+      }
+    }
+
+    const squishyMesh = new SoftSquishyMesh(30);
+
+    /* =====================================================================
+       KHỞI TẠO CANVAS & TƯƠNG TÁC NGƯỜI CHƠI (CORE LOOP & CONTROLS)
+       ===================================================================== */
+    const playCanvas = document.getElementById('squishy-canvas');
+    const playCtx = playCanvas.getContext('2d');
+
+    function resizePlayCanvas() {
+      const rect = playCanvas.parentElement.getBoundingClientRect();
+      playCanvas.width = rect.width;
+      playCanvas.height = rect.height;
+      squishyMesh.resize(rect.width, rect.height);
+    }
+
+    window.addEventListener('resize', () => {
+      resizePlayCanvas();
+      resizeMinigameCanvas();
+    });
+
+    let isPointerPressed = false;
+    let squishComboCounter = 0;
+    let lastSquishSoundTime = 0;
+
+    function handlePointerDown(e) {
+      isPointerPressed = true;
+      const rect = playCanvas.getBoundingClientRect();
+      const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+      const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+
+      squishyMesh.applyTouchIndent(x, y, true);
+
+      // Kích hoạt âm thanh ASMR bóp squishy
+      const activeSquishy = SQUISHY_CATALOG.find(s => s.id === gameState.activeSquishyId) || SQUISHY_CATALOG[0];
+      const activeNail = NAIL_CATALOG.find(n => n.id === gameState.activeNailId) || NAIL_CATALOG[0];
+
+      soundEngine.playSquishASMR(activeSquishy.soundType, 1.0);
+      soundEngine.playNailTap(activeNail.type);
+
+      // Thưởng Xu khi bóp
+      grantSquishReward(activeSquishy, activeNail, x, y);
+
+      squishyMesh.spawnSquishParticles(x, y, 6, activeSquishy.tierNum);
+    }
+
+    function handlePointerMove(e) {
+      if (!isPointerPressed) return;
+      const rect = playCanvas.getBoundingClientRect();
+      const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+      const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+
+      squishyMesh.applyTouchIndent(x, y, true);
+
+      const now = performance.now();
+      if (now - lastSquishSoundTime > 180) {
+        const activeSquishy = SQUISHY_CATALOG.find(s => s.id === gameState.activeSquishyId) || SQUISHY_CATALOG[0];
+        soundEngine.playSquishASMR(activeSquishy.soundType, 0.6);
+        lastSquishSoundTime = now;
+      }
+    }
+
+    function handlePointerUp() {
+      if (isPointerPressed) {
+        isPointerPressed = false;
+        squishyMesh.applyTouchIndent(0, 0, false);
+      }
+    }
+
+    // Sự kiện chuột & cảm ứng di động
+    playCanvas.addEventListener('mousedown', handlePointerDown);
+    window.addEventListener('mousemove', handlePointerMove);
+    window.addEventListener('mouseup', handlePointerUp);
+
+    playCanvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      handlePointerDown(e);
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (e) => {
+      if (isPointerPressed) {
+        e.preventDefault();
+        handlePointerMove(e);
+      }
+    }, { passive: false });
+
+    window.addEventListener('touchend', handlePointerUp);
+
+    // Tính toán và hiển thị xu bay lên khi bóp
+    function grantSquishReward(squishy, nail, x, y) {
+      const baseCoin = squishy.coinReward || 1;
+      const multiplier = nail.bonusMultiplier || 1.0;
+      const earned = Math.max(1, Math.round(baseCoin * multiplier));
+
+      gameState.coins += earned;
+      updateHeaderCoinsUI();
+      saveGame();
+
+      // Hiệu ứng số tiền nảy lên màn hình
+      spawnCoinFloatText(`+${earned} 🪙`, x, y);
+
+      // Âm thanh xu nhẹ
+      squishComboCounter++;
+      if (squishComboCounter % 5 === 0) {
+        soundEngine.playCoinEarn();
+      }
+    }
+
+    function spawnCoinFloatText(text, x, y) {
+      const el = document.createElement('div');
+      el.className = 'coin-float-pop';
+      el.textContent = text;
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      playCanvas.parentElement.appendChild(el);
+
+      setTimeout(() => {
+        el.remove();
+      }, 900);
+    }
+
+    function updateHeaderCoinsUI() {
+      const coinEl = document.getElementById('player-coins-val');
+      const badge = document.getElementById('header-coin-badge');
+      if (coinEl) coinEl.textContent = gameState.coins.toLocaleString('vi-VN');
+
+      badge.classList.add('bump');
+      setTimeout(() => badge.classList.remove('bump'), 180);
+    }
+
+    function updatePlayScreenHeader() {
+      const activeSquishy = SQUISHY_CATALOG.find(s => s.id === gameState.activeSquishyId) || SQUISHY_CATALOG[0];
+      const activeNail = NAIL_CATALOG.find(n => n.id === gameState.activeNailId) || NAIL_CATALOG[0];
+
+      document.getElementById('play-tier-badge').textContent = activeSquishy.tierName;
+      document.getElementById('play-squishy-name').textContent = activeSquishy.name;
+      document.getElementById('play-nail-name').textContent = activeNail.name;
+    }
+
+    // VÒNG LẶP CHÍNH CỦA GAME (ANIMATION LOOP)
+    function mainGameLoop() {
+      const activeSquishy = SQUISHY_CATALOG.find(s => s.id === gameState.activeSquishyId) || SQUISHY_CATALOG[0];
+      const activeNail = NAIL_CATALOG.find(n => n.id === gameState.activeNailId) || NAIL_CATALOG[0];
+      const customDIY = gameState.diyData[gameState.activeSquishyId];
+
+      squishyMesh.update(activeSquishy);
+      squishyMesh.render(playCtx, activeSquishy, customDIY, activeNail);
+
+      requestAnimationFrame(mainGameLoop);
+    }
+
+    /* =====================================================================
+       HỆ THỐNG DIY STUDIO (CHẾ TẠO SQUISHY & DÁN STICKER)
+       ===================================================================== */
+    const diyCanvas = document.getElementById('diy-canvas-preview');
+    const diyCtx = diyCanvas.getContext('2d');
+    let selectedSticker = '❤️';
+
+    function initDIYStudio() {
+      renderDIYColorSwatches();
+      renderDIYStickersList();
+      renderDIYCanvasPreview();
+
+      // Chọn màu tùy biến bằng Input Color
+      const picker = document.getElementById('diy-custom-color-picker');
+      picker.addEventListener('input', (e) => {
+        setDIYCustomColor(e.target.value);
+      });
+
+      // Nút Lưu DIY
+      document.getElementById('diy-save-btn').addEventListener('click', () => {
+        saveGame();
+        showToast('✨ Đã lưu thiết kế Squishy thành công!');
+        soundEngine.playCoinEarn();
+      });
+
+      // Nút Xóa hết sticker
+      document.getElementById('diy-clear-stickers-btn').addEventListener('click', () => {
+        ensureDIYState();
+        gameState.diyData[gameState.activeSquishyId].stickers = [];
+        renderDIYCanvasPreview();
+        saveGame();
+        showToast('🗑️ Đã xóa sạch sticker!');
+      });
+
+      // Nút Màu Gốc
+      document.getElementById('diy-reset-color-btn').addEventListener('click', () => {
+        ensureDIYState();
+        const sq = SQUISHY_CATALOG.find(s => s.id === gameState.activeSquishyId);
+        gameState.diyData[gameState.activeSquishyId].customColor = sq.baseColor;
+        renderDIYCanvasPreview();
+        saveGame();
+        showToast('🔄 Đã khôi phục màu gốc!');
+      });
+
+      // Chạm vào Canvas DIY để dán Sticker
+      diyCanvas.addEventListener('click', (e) => {
+        const rect = diyCanvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        ensureDIYState();
+        const centerX = diyCanvas.width / 2;
+        const centerY = diyCanvas.height / 2;
+
+        gameState.diyData[gameState.activeSquishyId].stickers.push({
+          emoji: selectedSticker,
+          relX: x - centerX,
+          relY: y - centerY,
+          scale: 1.0,
+          rot: (Math.random() - 0.5) * 0.4
+        });
+
+        renderDIYCanvasPreview();
+        soundEngine.playPopSound();
+      });
+    }
+
+    function ensureDIYState() {
+      if (!gameState.diyData[gameState.activeSquishyId]) {
+        const sq = SQUISHY_CATALOG.find(s => s.id === gameState.activeSquishyId) || SQUISHY_CATALOG[0];
+        gameState.diyData[gameState.activeSquishyId] = {
+          customColor: sq.baseColor,
+          stickers: []
+        };
+      }
+    }
+
+    function setDIYCustomColor(color) {
+      ensureDIYState();
+      gameState.diyData[gameState.activeSquishyId].customColor = color;
+      renderDIYCanvasPreview();
+      saveGame();
+    }
+
+    function renderDIYColorSwatches() {
+      const container = document.getElementById('diy-color-swatches');
+      container.innerHTML = '';
+
+      PASTEL_PALETTE.forEach(color => {
+        const div = document.createElement('div');
+        div.className = 'color-swatch-circle';
+        div.style.backgroundColor = color;
+        div.addEventListener('click', () => {
+          document.querySelectorAll('.color-swatch-circle').forEach(el => el.classList.remove('selected'));
+          div.classList.add('selected');
+          setDIYCustomColor(color);
+        });
+        container.appendChild(div);
+      });
+    }
+
+    function renderDIYStickersList() {
+      const container = document.getElementById('diy-sticker-list');
+      container.innerHTML = '';
+
+      STICKER_PACKS.forEach(pack => {
+        const isUnlocked = gameState.unlockedPacks.includes(pack.id);
+        pack.stickers.forEach(emoji => {
+          const btn = document.createElement('button');
+          btn.className = `sticker-item-btn ${emoji === selectedSticker ? 'selected' : ''} ${!isUnlocked ? 'locked' : ''}`;
+          btn.textContent = emoji;
+
+          if (isUnlocked) {
+            btn.addEventListener('click', () => {
+              selectedSticker = emoji;
+              document.querySelectorAll('.sticker-item-btn').forEach(el => el.classList.remove('selected'));
+              btn.classList.add('selected');
+              soundEngine.playPopSound();
+            });
+          } else {
+            btn.title = `Thuộc ${pack.name} (Chưa mở khóa)`;
+            btn.addEventListener('click', () => {
+              showToast(`🔒 Hãy mua ${pack.name} tại Cửa Hàng!`);
+            });
+          }
+          container.appendChild(btn);
+        });
+      });
+    }
+
+    function renderDIYCanvasPreview() {
+      const w = diyCanvas.width;
+      const h = diyCanvas.height;
+      diyCtx.clearRect(0, 0, w, h);
+
+      const activeSquishy = SQUISHY_CATALOG.find(s => s.id === gameState.activeSquishyId) || SQUISHY_CATALOG[0];
+      ensureDIYState();
+      const diy = gameState.diyData[gameState.activeSquishyId];
+      const color = diy.customColor || activeSquishy.baseColor;
+
+      const cx = w / 2;
+      const cy = h / 2;
+      const r = 85;
+
+      // Bóng đổ preview
+      diyCtx.beginPath();
+      diyCtx.ellipse(cx, cy + r * 0.9, r * 0.8, 16, 0, 0, Math.PI * 2);
+      diyCtx.fillStyle = 'rgba(200, 160, 180, 0.25)';
+      diyCtx.fill();
+
+      // Thân Squishy Preview
+      diyCtx.save();
+      diyCtx.beginPath();
+      diyCtx.arc(cx, cy, r, 0, Math.PI * 2);
+      diyCtx.fillStyle = color;
+      diyCtx.fill();
+      diyCtx.lineWidth = 3;
+      diyCtx.strokeStyle = activeSquishy.secondaryColor;
+      diyCtx.stroke();
+      diyCtx.clip();
+
+      // Khuôn mặt
+      squishyMesh.renderSpecificFeatures(diyCtx, activeSquishy);
+
+      // Stickers
+      if (diy.stickers) {
+        diy.stickers.forEach(stk => {
+          diyCtx.save();
+          diyCtx.translate(cx + stk.relX, cy + stk.relY);
+          diyCtx.rotate(stk.rot || 0);
+          diyCtx.font = `${Math.round(26 * (stk.scale || 1))}px sans-serif`;
+          diyCtx.textAlign = 'center';
+          diyCtx.textBaseline = 'middle';
+          diyCtx.fillText(stk.emoji, 0, 0);
+          diyCtx.restore();
+        });
+      }
+
+      // Highlight
+      diyCtx.beginPath();
+      diyCtx.ellipse(cx - 30, cy - 40, 30, 14, -Math.PI / 6, 0, Math.PI * 2);
+      diyCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+      diyCtx.fill();
+
+      diyCtx.restore();
+    }
+
+    /* =====================================================================
+       HỆ THỐNG TIỆM NAIL (NAIL SALON & BUFF SYSTEM)
+       ===================================================================== */
+    function renderNailSalon() {
+      const container = document.getElementById('nail-catalog-grid');
+      container.innerHTML = '';
+
+      NAIL_CATALOG.forEach(nail => {
+        const isUnlocked = gameState.unlockedNails.includes(nail.id);
+        const isEquipped = gameState.activeNailId === nail.id;
+
+        const card = document.createElement('div');
+        card.className = `nail-card ${isEquipped ? 'equipped' : ''}`;
+
+        // Canvas mini xem trước móng
+        const canvasId = `nail-prev-${nail.id}`;
+        card.innerHTML = `
+          <canvas class="nail-preview-canvas" id="${canvasId}" width="80" height="80"></canvas>
+          <div class="nail-title">${nail.name}</div>
+          <div class="nail-buff-text">🎁 +${Math.round((nail.bonusMultiplier - 1) * 100)}% Xu/bóp</div>
+          <p style="font-size:0.75rem; color:#885B7A;">${nail.desc}</p>
+          <div style="width: 100%; margin-top: auto;">
+            ${isEquipped ? `
+              <button class="action-btn-main btn-equipped">✓ Đang Dùng</button>
+            ` : isUnlocked ? `
+              <button class="action-btn-main btn-purple" onclick="equipNail('${nail.id}')">Trang Bị</button>
+            ` : `
+              <button class="action-btn-main btn-buy" onclick="buyNail('${nail.id}', ${nail.price})">
+                🪙 ${nail.price} Xu
+              </button>
+            `}
+          </div>
+        `;
+        container.appendChild(card);
+
+        // Vẽ móng preview
+        setTimeout(() => {
+          const cvs = document.getElementById(canvasId);
+          if (cvs) {
+            const ctx = cvs.getContext('2d');
+            ctx.clearRect(0, 0, 80, 80);
+            ctx.save();
+            ctx.translate(40, 50);
+            squishyMesh.renderEquippedNail(ctx, nail);
+            ctx.restore();
+          }
+        }, 10);
+      });
+    }
+
+    function equipNail(nailId) {
+      gameState.activeNailId = nailId;
+      saveGame();
+      updatePlayScreenHeader();
+      renderNailSalon();
+      showToast('💅 Đã trang bị bộ móng mới!');
+      soundEngine.playNailTap(nailId);
+    }
+
+    function buyNail(nailId, price) {
+      if (gameState.coins >= price) {
+        gameState.coins -= price;
+        gameState.unlockedNails.push(nailId);
+        gameState.activeNailId = nailId;
+        saveGame();
+        updateHeaderCoinsUI();
+        updatePlayScreenHeader();
+        renderNailSalon();
+        showToast('🎉 Mua thành công & đã trang bị!');
+        soundEngine.playCoinEarn();
+      } else {
+        showToast('❌ Bạn không đủ Xu rồi, chơi Minigame thêm nhé!');
+      }
+    }
+
+    /* =====================================================================
+       HỆ THỐNG MINIGAMES (CƠN MƯA KẸO NGỌT & ĐẬP BỌT MOCHI)
+       ===================================================================== */
+    const mgCanvas = document.getElementById('minigame-canvas');
+    const mgCtx = mgCanvas.getContext('2d');
+    let activeMinigameMode = 'candy'; // 'candy' hoặc 'mochi'
+    let isMinigameRunning = false;
+    let minigameTimer = 30;
+    let minigameScore = 0;
+    let minigameInterval = null;
+
+    // Candy Game Variables
+    let basket = { x: 150, y: 310, w: 75, h: 45, speed: 0 };
+    let fallingCandies = [];
+
+    // Mochi Pop Variables
+    let mochiHoles = []; // 6 lỗ
+
+    function resizeMinigameCanvas() {
+      const container = document.getElementById('minigame-arena-container');
+      if (container) {
+        mgCanvas.width = container.clientWidth;
+        mgCanvas.height = container.clientHeight;
+        basket.y = mgCanvas.height - 55;
+      }
+    }
+
+    function switchMinigameMode(mode) {
+      if (isMinigameRunning) stopMinigame();
+      activeMinigameMode = mode;
+
+      document.querySelectorAll('.minigame-tab-btn').forEach(btn => btn.classList.remove('active'));
+      if (mode === 'candy') {
+        document.getElementById('tab-mg-candy').classList.add('active');
+        document.getElementById('mg-overlay-title').textContent = '🍬 Cơn Mưa Kẹo Ngọt';
+        document.getElementById('mg-overlay-desc').textContent = 'Hứng kẹo ngọt và sao rơi vào bát. Tránh bom ớt cay!';
+      } else {
+        document.getElementById('tab-mg-mochi').classList.add('active');
+        document.getElementById('mg-overlay-title').textContent = '🔨 Đập Bọt Mochi';
+        document.getElementById('mg-overlay-desc').textContent = 'Chạm thật nhanh vào các bé Mochi thò đầu lên khỏi lỗ!';
+      }
+
+      document.getElementById('mg-overlay').style.display = 'flex';
+    }
+
+    document.getElementById('mg-start-btn').addEventListener('click', startMinigame);
+
+    function startMinigame() {
+      resizeMinigameCanvas();
+      document.getElementById('mg-overlay').style.display = 'none';
+
+      minigameScore = 0;
+      minigameTimer = 30;
+      isMinigameRunning = true;
+      document.getElementById('mg-timer-val').textContent = `${minigameTimer}s`;
+      document.getElementById('mg-score-val').textContent = minigameScore;
+
+      fallingCandies = [];
+      initMochiHoles();
+
+      clearInterval(minigameInterval);
+      minigameInterval = setInterval(() => {
+        minigameTimer--;
+        document.getElementById('mg-timer-val').textContent = `${minigameTimer}s`;
+        if (minigameTimer <= 0) {
+          endMinigame();
+        }
+      }, 1000);
+
+      requestAnimationFrame(minigameLoop);
+    }
+
+    function stopMinigame() {
+      isMinigameRunning = false;
+      clearInterval(minigameInterval);
+    }
+
+    function endMinigame() {
+      stopMinigame();
+      // Cộng toàn bộ Xu kiếm được
+      gameState.coins += minigameScore;
+      updateHeaderCoinsUI();
+      saveGame();
+
+      soundEngine.playCoinEarn();
+
+      document.getElementById('mg-overlay-title').textContent = '🎉 Hoàn Thành Xuất Sắc!';
+      document.getElementById('mg-overlay-desc').innerHTML = `
+        Bạn đã thu thập được <strong>+${minigameScore} 🪙 Xu</strong>!<br>
+        Số xu đã được tự động cộng vào túi tiền.
+      `;
+      document.getElementById('mg-start-btn').textContent = 'Chơi Lại';
+      document.getElementById('mg-overlay').style.display = 'flex';
+    }
+
+    // Minigame 1: Candies Setup
+    function spawnFallingCandy() {
+      if (Math.random() < 0.045) {
+        const types = [
+          { char: '🍬', val: 5, isBomb: false },
+          { char: '⭐', val: 10, isBomb: false },
+          { char: '🧁', val: 15, isBomb: false },
+          { char: '🍓', val: 8, isBomb: false },
+          { char: '🌶️', val: -15, isBomb: true }
+        ];
+        const item = types[Math.floor(Math.random() * types.length)];
+        fallingCandies.push({
+          x: 20 + Math.random() * (mgCanvas.width - 50),
+          y: -20,
+          speed: 2 + Math.random() * 2.8,
+          char: item.char,
+          val: item.val,
+          isBomb: item.isBomb
+        });
+      }
+    }
+
+    // Minigame 2: Mochi Holes Setup
+    function initMochiHoles() {
+      mochiHoles = [];
+      const cols = 3;
+      const rows = 2;
+      const cellW = mgCanvas.width / cols;
+      const cellH = mgCanvas.height / rows;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          mochiHoles.push({
+            x: c * cellW + cellW / 2,
+            y: r * cellH + cellH / 2 + 15,
+            active: false,
+            type: 'pink',
+            timer: 0
+          });
+        }
+      }
+    }
+
+    // Tương tác chuột/cảm ứng trong Minigame
+    mgCanvas.addEventListener('mousemove', (e) => {
+      if (!isMinigameRunning || activeMinigameMode !== 'candy') return;
+      const rect = mgCanvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      basket.x = mouseX - basket.w / 2;
+    });
+
+    mgCanvas.addEventListener('touchmove', (e) => {
+      if (!isMinigameRunning || activeMinigameMode !== 'candy') return;
+      const rect = mgCanvas.getBoundingClientRect();
+      const touchX = e.touches[0].clientX - rect.left;
+      basket.x = touchX - basket.w / 2;
+    }, { passive: true });
+
+    mgCanvas.addEventListener('click', (e) => {
+      if (!isMinigameRunning || activeMinigameMode !== 'mochi') return;
+      const rect = mgCanvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      mochiHoles.forEach(h => {
+        if (h.active) {
+          const dist = Math.hypot(clickX - h.x, clickY - h.y);
+          if (dist < 45) {
+            // Đập trúng Mochi!
+            h.active = false;
+            const reward = h.type === 'gold' ? 30 : 10;
+            minigameScore += reward;
+            document.getElementById('mg-score-val').textContent = minigameScore;
+            soundEngine.playPopSound();
+          }
+        }
+      });
+    });
+
+    // VÒNG LẶP MINIGAME LOOP
+    function minigameLoop() {
+      if (!isMinigameRunning) return;
+      mgCtx.clearRect(0, 0, mgCanvas.width, mgCanvas.height);
+
+      if (activeMinigameMode === 'candy') {
+        renderCandyGame();
+      } else {
+        renderMochiPopGame();
+      }
+
+      requestAnimationFrame(minigameLoop);
+    }
+
+    function renderCandyGame() {
+      spawnFallingCandy();
+
+      // Giới hạn basket trong khung
+      basket.x = Math.max(0, Math.min(mgCanvas.width - basket.w, basket.x));
+
+      // Vẽ chiếc bát hứng kẹo hình chú thỏ
+      mgCtx.save();
+      mgCtx.fillStyle = '#FFB3D1';
+      mgCtx.beginPath();
+      if (mgCtx.roundRect) {
+        mgCtx.roundRect(basket.x, basket.y, basket.w, basket.h, [10, 10, 24, 24]);
+      } else {
+        mgCtx.rect(basket.x, basket.y, basket.w, basket.h);
+      }
+      mgCtx.fill();
+      mgCtx.lineWidth = 2.5;
+      mgCtx.strokeStyle = '#FFF';
+      mgCtx.stroke();
+
+      mgCtx.font = '24px sans-serif';
+      mgCtx.textAlign = 'center';
+      mgCtx.fillText('🐰', basket.x + basket.w / 2, basket.y + 28);
+      mgCtx.restore();
+
+      // Rơi và kiểm tra va chạm kẹo
+      for (let i = fallingCandies.length - 1; i >= 0; i--) {
+        const item = fallingCandies[i];
+        item.y += item.speed;
+
+        mgCtx.font = '28px sans-serif';
+        mgCtx.textAlign = 'center';
+        mgCtx.fillText(item.char, item.x, item.y);
+
+        // Va chạm bát
+        if (
+          item.y >= basket.y &&
+          item.y <= basket.y + basket.h &&
+          item.x >= basket.x - 10 &&
+          item.x <= basket.x + basket.w + 10
+        ) {
+          if (item.isBomb) {
+            minigameScore = Math.max(0, minigameScore + item.val);
+            soundEngine.playSquishASMR('dry_foam', 1.0);
+          } else {
+            minigameScore += item.val;
+            soundEngine.playPopSound();
+          }
+          document.getElementById('mg-score-val').textContent = minigameScore;
+          fallingCandies.splice(i, 1);
+          continue;
+        }
+
+        // Rơi ra ngoài
+        if (item.y > mgCanvas.height + 30) {
+          fallingCandies.splice(i, 1);
+        }
+      }
+    }
+
+    function renderMochiPopGame() {
+      // Xác suất Mochi trồi lên
+      if (Math.random() < 0.05) {
+        const inactive = mochiHoles.filter(h => !h.active);
+        if (inactive.length > 0) {
+          const chosen = inactive[Math.floor(Math.random() * inactive.length)];
+          chosen.active = true;
+          chosen.type = Math.random() < 0.2 ? 'gold' : 'pink';
+          chosen.timer = 55; // frames
+        }
+      }
+
+      // Vẽ các lỗ và bé Mochi
+      mochiHoles.forEach(h => {
+        // Lỗ đất/đệm
+        mgCtx.save();
+        mgCtx.beginPath();
+        mgCtx.ellipse(h.x, h.y + 18, 44, 20, 0, 0, Math.PI * 2);
+        mgCtx.fillStyle = 'rgba(215, 189, 226, 0.45)';
+        mgCtx.fill();
+        mgCtx.lineWidth = 2;
+        mgCtx.strokeStyle = '#BB8FCE';
+        mgCtx.stroke();
+
+        if (h.active) {
+          h.timer--;
+          if (h.timer <= 0) h.active = false;
+
+          // Vẽ Mochi nhô lên
+          const mColor = h.type === 'gold' ? '#F7DC6F' : '#FFB6C1';
+          mgCtx.beginPath();
+          mgCtx.arc(h.x, h.y - 6, 32, Math.PI, 0);
+          mgCtx.lineTo(h.x + 32, h.y + 14);
+          mgCtx.lineTo(h.x - 32, h.y + 14);
+          mgCtx.closePath();
+          mgCtx.fillStyle = mColor;
+          mgCtx.fill();
+          mgCtx.lineWidth = 2.5;
+          mgCtx.strokeStyle = '#FFF';
+          mgCtx.stroke();
+
+          // Khuôn mặt mochi
+          mgCtx.fillStyle = '#4A235A';
+          mgCtx.font = 'bold 16px sans-serif';
+          mgCtx.textAlign = 'center';
+          mgCtx.fillText(h.type === 'gold' ? '★ ‿ ★' : '● ‿ ●', h.x, h.y + 2);
+        }
+        mgCtx.restore();
+      });
+    }
+
+    /* =====================================================================
+       HỆ THỐNG CỬA HÀNG (SHOP & UNLOCK PROGRESSION)
+       ===================================================================== */
+    function renderShopScreen() {
+      // 1. Danh sách Squishy
+      const squishyContainer = document.getElementById('shop-squishy-container');
+      squishyContainer.innerHTML = '';
+
+      SQUISHY_CATALOG.forEach(sq => {
+        const isUnlocked = gameState.unlockedSquishies.includes(sq.id);
+        const isActive = gameState.activeSquishyId === sq.id;
+
+        const card = document.createElement('div');
+        card.className = 'shop-item-card';
+
+        let icon = '🧸';
+        if (sq.shape === 'lumpy_sponge') icon = '🧽';
+        else if (sq.shape === 'rounded_rect') icon = '🧼';
+        else if (sq.shape === 'bread_loaf') icon = '🍞';
+        else if (sq.shape === 'cat_mochi') icon = '🐱';
+        else if (sq.shape === 'bunny_cake') icon = '🐰';
+        else if (sq.shape === 'unicorn_star') icon = '🦄';
+
+        card.innerHTML = `
+          <div class="shop-item-icon-box" style="background:${sq.baseColor};">${icon}</div>
+          <div class="shop-item-info">
+            <span class="squishy-tier-badge" style="font-size:0.65rem;">${sq.tierName}</span>
+            <div class="shop-item-name">${sq.name}</div>
+            <div class="shop-item-desc">${sq.desc}</div>
+            <div class="shop-item-stats">⚡ Nhận ${sq.coinReward} Xu/lần bóp</div>
+          </div>
+          <div style="min-width: 95px;">
+            ${isActive ? `
+              <button class="action-btn-main btn-equipped">Đang Chọn</button>
+            ` : isUnlocked ? `
+              <button class="action-btn-main btn-purple" onclick="selectSquishy('${sq.id}')">Chọn Phôi</button>
+            ` : `
+              <button class="action-btn-main btn-buy" onclick="buySquishy('${sq.id}', ${sq.price})">
+                🪙 ${sq.price}
+              </button>
+            `}
+          </div>
+        `;
+        squishyContainer.appendChild(card);
+      });
+
+      // 2. Danh sách Gói Sticker
+      const stickerContainer = document.getElementById('shop-sticker-container');
+      stickerContainer.innerHTML = '';
+
+      STICKER_PACKS.filter(p => p.price > 0).forEach(pack => {
+        const isUnlocked = gameState.unlockedPacks.includes(pack.id);
+        const card = document.createElement('div');
+        card.className = 'shop-item-card';
+
+        card.innerHTML = `
+          <div class="shop-item-icon-box">${pack.stickers[0]}</div>
+          <div class="shop-item-info">
+            <div class="shop-item-name">${pack.name}</div>
+            <div class="shop-item-desc">Bao gồm 8 mẫu: ${pack.stickers.join(' ')}</div>
+          </div>
+          <div style="min-width: 95px;">
+            ${isUnlocked ? `
+              <button class="action-btn-main btn-equipped">Đã Mua</button>
+            ` : `
+              <button class="action-btn-main btn-buy" onclick="buyStickerPack('${pack.id}', ${pack.price})">
+                🪙 ${pack.price}
+              </button>
+            `}
+          </div>
+        `;
+        stickerContainer.appendChild(card);
+      });
+    }
+
+    function selectSquishy(squishyId) {
+      gameState.activeSquishyId = squishyId;
+      saveGame();
+      updatePlayScreenHeader();
+      renderShopScreen();
+      renderDIYCanvasPreview();
+      showToast('🧸 Đã đổi sang phôi Squishy mới!');
+      soundEngine.playPopSound();
+    }
+
+    function buySquishy(squishyId, price) {
+      if (gameState.coins >= price) {
+        gameState.coins -= price;
+        gameState.unlockedSquishies.push(squishyId);
+        gameState.activeSquishyId = squishyId;
+        saveGame();
+        updateHeaderCoinsUI();
+        updatePlayScreenHeader();
+        renderShopScreen();
+        showToast('🎉 Mở khóa Squishy thành công!');
+        soundEngine.playCoinEarn();
+      } else {
+        showToast('❌ Bạn không đủ Xu rồi!');
+      }
+    }
+
+    function buyStickerPack(packId, price) {
+      if (gameState.coins >= price) {
+        gameState.coins -= price;
+        gameState.unlockedPacks.push(packId);
+        saveGame();
+        updateHeaderCoinsUI();
+        renderShopScreen();
+        renderDIYStickersList();
+        showToast('🎉 Đã sở hữu gói Sticker độc quyền!');
+        soundEngine.playCoinEarn();
+      } else {
+        showToast('❌ Bạn không đủ Xu rồi!');
+      }
+    }
+
+    /* =====================================================================
+       ĐIỀU HƯỚNG MÀN HÌNH (NAVIGATION & TOAST NOTIFICATION)
+       ===================================================================== */
+    const navButtons = document.querySelectorAll('.nav-tab-btn');
+    const viewScreens = document.querySelectorAll('.view-screen');
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetViewId = btn.getAttribute('data-target');
+
+        // Bỏ active cũ
+        navButtons.forEach(b => b.classList.remove('active'));
+        viewScreens.forEach(v => v.classList.remove('active'));
+
+        btn.classList.add('active');
+        const targetView = document.getElementById(targetViewId);
+        if (targetView) targetView.classList.add('active');
+
+        // Khởi tạo/cập nhật dữ liệu màn hình tương ứng
+        if (targetViewId === 'view-play') {
+          resizePlayCanvas();
+          updatePlayScreenHeader();
+        } else if (targetViewId === 'view-diy') {
+          renderDIYCanvasPreview();
+          renderDIYStickersList();
+        } else if (targetViewId === 'view-nail') {
+          renderNailSalon();
+        } else if (targetViewId === 'view-minigame') {
+          resizeMinigameCanvas();
+        } else if (targetViewId === 'view-shop') {
+          renderShopScreen();
+        }
+
+        soundEngine.playPopSound();
+      });
+    });
+
+    // Bật/Tắt Âm Thanh
+    const audioBtn = document.getElementById('audio-toggle-btn');
+    audioBtn.addEventListener('click', () => {
+      gameState.soundEnabled = !gameState.soundEnabled;
+      soundEngine.setMute(!gameState.soundEnabled);
+      audioBtn.textContent = gameState.soundEnabled ? '🔊' : '🔇';
+      showToast(gameState.soundEnabled ? '🔊 Đã bật âm thanh ASMR' : '🔇 Đã tắt âm thanh');
+      saveGame();
+    });
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const el = document.getElementById('toast-msg');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        el.classList.remove('show');
+      }, 2400);
+    }
+
+    // Đăng ký các hàm toàn cục cho thuộc tính onclick
+    window.equipNail = equipNail;
+    window.buyNail = buyNail;
+    window.switchMinigameMode = switchMinigameMode;
+    window.selectSquishy = selectSquishy;
+    window.buySquishy = buySquishy;
+    window.buyStickerPack = buyStickerPack;
+
+    /* =====================================================================
+       KHỞI CHẠY ỨNG DỤNG LẦN ĐẦU (GAME INITIALIZATION)
+       ===================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadGame();
+      updateHeaderCoinsUI();
+      updatePlayScreenHeader();
+      resizePlayCanvas();
+
+      initDIYStudio();
+      renderNailSalon();
+      renderShopScreen();
+
+      // Đồng bộ trạng thái âm thanh
+      soundEngine.setMute(!gameState.soundEnabled);
+      audioBtn.textContent = gameState.soundEnabled ? '🔊' : '🔇';
+
+      // Chạy vòng lặp Render
+      mainGameLoop();
+    });
+  </script>
+</body>
+</html>
